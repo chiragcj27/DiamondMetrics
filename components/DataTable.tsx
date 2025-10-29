@@ -64,7 +64,7 @@ export const DataTable = ({ data }: DataTableProps) => {
             }
           },
           { data: 'quantity', type: 'numeric' },
-          { data: 'totalWeight', type: 'numeric', numericFormat: { pattern: '0,0.000' } },
+          { data: 'totalWeight', type: 'numeric', numericFormat: { pattern: '0,0.00' } },
         ]}
         stretchH="all"
         height={520}
