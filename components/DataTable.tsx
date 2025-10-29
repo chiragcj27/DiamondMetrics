@@ -5,6 +5,7 @@ import { registerAllModules } from 'handsontable/registry';
 
 import 'handsontable/styles/handsontable.min.css';
 import 'handsontable/styles/ht-theme-main.min.css';
+import './handsontable-overrides.css';
 
 registerAllModules();
 

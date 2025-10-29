@@ -1,0 +1,8 @@
+.ht-theme-main {
+  /* Ensure our header colors override the default theme */
+  --ht-header-background-color: #1f636e;
+  /* Optional: adjust text color for contrast */
+  --ht-header-foreground-color: #ffffff;
+}
+
+
