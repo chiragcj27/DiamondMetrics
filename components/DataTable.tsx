@@ -27,7 +27,9 @@ export const DataTable = ({ data }: DataTableProps) => {
     col1: "", // DIA/COL (empty as requested)
     col2: "", // SETTING TYP. (empty as requested)
     shape: r.shape,
-    size: r.shape === 'Round' ? `${r.size}` : (r.sizeY ? `${r.size}x${r.sizeY}` : `${r.size}`),
+    size: r.shape === 'Round'
+      ? r.size.toFixed(2)
+      : (r.sizeY ? `${r.size.toFixed(2)}x${r.sizeY.toFixed(2)}` : `${r.size.toFixed(2)}`),
     sieveSize: r.sieveSize,
     avgWeight: r.avgWeight, // keep '-' when not present
     quantity: r.quantity,
