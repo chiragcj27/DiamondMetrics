@@ -44,7 +44,7 @@ export const DataTable = ({ data }: DataTableProps) => {
         : '',
   }));
 
-  // Compute totals
+  // Compute totals 
   const totalQuantity = data.reduce((acc, r) => acc + (Number(r.quantity) || 0), 0);
   const totalCtwt = normalized.reduce(
     (acc, row) => {
@@ -53,6 +53,7 @@ export const DataTable = ({ data }: DataTableProps) => {
     },
     0
   );
+
   const totalsRow = {
     col1: 'TOTAL',
     col2: '',
