@@ -27,8 +27,8 @@ interface DataTableProps {
 }
 
 export const DataTable = ({ data }: DataTableProps) => {
-  // Remove totalWeight from normalized and use formula property
-  const normalized = data.map((r) => ({
+  // Build normalized rows and use formulas for computed fields
+  const normalized = data.map((r, idx) => ({
     col1: "",
     col2: "",
     shape: r.shape,
@@ -38,21 +38,10 @@ export const DataTable = ({ data }: DataTableProps) => {
     sieveSize: r.sieveSize,
     avgWeight: r.avgWeight,
     quantity: r.quantity,
-    ctwt:
-      typeof r.avgWeight === 'number' && !isNaN(r.avgWeight) && typeof r.quantity === 'number' && !isNaN(r.quantity)
-        ? r.avgWeight * r.quantity
-        : '',
+    // Handsontable columns: F = avgWeight (6th), G = quantity (7th), H = ctwt (8th)
+    // Rows in formulas are 1-based; add 1 for header row offset
+    ctwt: `=F${idx + 1}*G${idx + 1}`,
   }));
-
-  // Compute totals 
-  const totalQuantity = data.reduce((acc, r) => acc + (Number(r.quantity) || 0), 0);
-  const totalCtwt = normalized.reduce(
-    (acc, row) => {
-      const val = typeof row.ctwt === 'number' && !isNaN(row.ctwt) ? row.ctwt : 0;
-      return acc + val;
-    },
-    0
-  );
 
   const totalsRow = {
     col1: 'TOTAL',
@@ -61,8 +50,10 @@ export const DataTable = ({ data }: DataTableProps) => {
     size: '',
     sieveSize: '',
     avgWeight: '',
-    quantity: totalQuantity,
-    ctwt: totalCtwt.toFixed(2),
+    // Sum of PCS (G column) for all data rows
+    quantity: `=SUM(G1:G${normalized.length})`,
+    // Sum of CT WT (H column) for all data rows
+    ctwt: `=SUM(H1:H${normalized.length})`,
     _isTotal: true,
   };
   const normalizedWithTotal = [...normalized, totalsRow];
