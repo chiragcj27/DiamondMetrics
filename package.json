@@ -11,6 +11,7 @@
   "dependencies": {
     "@handsontable/react": "^16.1.1",
     "handsontable": "^16.1.1",
+    "html2canvas": "^1.4.1",
     "next": "16.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0"

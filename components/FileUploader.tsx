@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { parseDiamondFile, DiamondRow } from "./Parser";
 import sievePresets from "../data/seivePresets.json";
 import weightPresets from "../data/weightPresets.json";
-import { DataTable } from "./DataTable";
+import { DataTable, DataTableRef } from "./DataTable";
 
 interface EnrichedDiamondRow extends DiamondRow {
   sieveSize: string;
@@ -17,6 +17,7 @@ type PresetObject = Record<string, string>;
 
 export const FileUploader = () => {
   const [rows, setRows] = useState<EnrichedDiamondRow[]>([]);
+  const dataTableRef = useRef<DataTableRef>(null);
 
   // Generate common numeric string variants so we can match presets that
   // differ in decimal formatting (e.g. "0.80" vs "0.8", "1.00" vs "1").
@@ -110,13 +111,34 @@ export const FileUploader = () => {
               <p className="mt-2 text-sm text-gray-300">Upload a plain-text export to parse and view enriched metrics.</p>
             </div>
             {rows.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setRows([])}
-                className="inline-flex items-center rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/20 border border-white/20"
-              >
-                Reset
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => dataTableRef.current?.captureSnapshot()}
+                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 border border-blue-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Save Table Snapshot
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRows([])}
+                  className="inline-flex items-center rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/20 border border-white/20"
+                >
+                  Reset
+                </button>
+              </div>
             )}
           </div>
 
@@ -139,7 +161,7 @@ export const FileUploader = () => {
             </div>
           ) : (
             <div className="rounded-xl overflow-hidden border border-white/10 bg-white">
-              <DataTable data={rows} />
+              <DataTable ref={dataTableRef} data={rows} />
             </div>
           )}
         </div>
