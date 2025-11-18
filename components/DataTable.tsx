@@ -61,7 +61,7 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
       const table = document.createElement("table");
       table.style.borderCollapse = "collapse";
       table.style.fontFamily = "Arial, Helvetica, sans-serif";
-      table.style.fontSize = "14px";
+      table.style.fontSize = "18px";
       table.style.backgroundColor = "#ffffff";
       table.style.color = "#000000";
       table.style.border = "2px solid #333";
@@ -140,6 +140,7 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
           td.style.textAlign = col < 3 ? "left" : "center";
           td.style.color = "#000000";
           td.style.backgroundColor = "#ffffff";
+          td.style.fontWeight = "bold";
           
           if (isLastRow) {
             td.style.fontWeight = "bold";

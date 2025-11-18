@@ -5,6 +5,13 @@
   --ht-header-foreground-color: #ffffff;
 }
 
+/* Make all table cells larger and bold */
+.handsontable td,
+.handsontable th {
+  font-size: 18px !important;
+  font-weight: bold !important;
+}
+
 .ht-total-row {
   font-weight: bold;
   background: #e7f6fa;
