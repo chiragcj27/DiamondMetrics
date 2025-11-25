@@ -252,6 +252,34 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
     }
   };
 
+  const updateTotalRowFormulas = () => {
+    const hotInstance = hotTableRef.current?.hotInstance;
+    if (!hotInstance) return;
+
+    const totalRowIndex = hotInstance.countRows() - 1;
+    if (totalRowIndex < 0) return;
+
+    const lastDataRowNumber = totalRowIndex; // convert index to 1-based row number
+    if (lastDataRowNumber === 0) {
+      hotInstance.setDataAtCell(totalRowIndex, 6, 0, "loadData");
+      hotInstance.setDataAtCell(totalRowIndex, 7, 0, "loadData");
+      return;
+    }
+
+    hotInstance.setDataAtCell(
+      totalRowIndex,
+      6,
+      `=SUM(G1:G${lastDataRowNumber})`,
+      "loadData"
+    );
+    hotInstance.setDataAtCell(
+      totalRowIndex,
+      7,
+      `=SUM(H1:H${lastDataRowNumber})`,
+      "loadData"
+    );
+  };
+
   return (
     <div className="w-full">
       <div ref={tableContainerRef} className="w-full overflow-x-auto overflow-hidden">
@@ -342,8 +370,18 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
             }
             return {};
           }}
+          afterInit={() => {
+            updateTotalRowFormulas();
+          }}
+          afterLoadData={() => {
+            updateTotalRowFormulas();
+          }}
           afterCreateRow={(index, amount) => {
             applyCtwtFormulaForRange(index, amount);
+            updateTotalRowFormulas();
+          }}
+          afterRemoveRow={() => {
+            updateTotalRowFormulas();
           }}
         />
       </div>
