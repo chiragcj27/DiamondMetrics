@@ -61,7 +61,7 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
       const table = document.createElement("table");
       table.style.borderCollapse = "collapse";
       table.style.fontFamily = "Arial, Helvetica, sans-serif";
-      table.style.fontSize = "24px";
+      table.style.fontSize = "20px";
       table.style.backgroundColor = "#ffffff";
       table.style.color = "#000000";
       table.style.border = "2px solid #333";
@@ -74,12 +74,13 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
       const rowNumHeader = document.createElement("th");
       rowNumHeader.textContent = "";
       rowNumHeader.style.border = "1px solid #666";
-      rowNumHeader.style.padding = "4px 6px";
+      rowNumHeader.style.padding = "4px 10px";
+      rowNumHeader.style.verticalAlign = "middle";
       rowNumHeader.style.backgroundColor = "#1f636e";
       rowNumHeader.style.fontWeight = "bold";
-      rowNumHeader.style.textAlign = "center";
       rowNumHeader.style.minWidth = "50px";
       rowNumHeader.style.color = "#ffffff";
+      rowNumHeader.style.textAlign = "center";
       headerRow.appendChild(rowNumHeader);
 
       // Add column headers
@@ -87,13 +88,14 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
         const th = document.createElement("th");
         th.textContent = header;
         th.style.border = "1px solid #666";
-        th.style.padding = "4px 6px";
+        th.style.padding = "4px 10px";
+        th.style.verticalAlign = "middle";
         th.style.backgroundColor = "#1f636e";
         th.style.fontWeight = "bold";
-        th.style.textAlign = "center";
         th.style.whiteSpace = "nowrap";
         th.style.color = "#ffffff";
         th.style.minWidth = "80px";
+        th.style.textAlign = "center";
         headerRow.appendChild(th);
       });
       thead.appendChild(headerRow);
@@ -109,11 +111,13 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
         const rowNumCell = document.createElement("td");
         rowNumCell.textContent = isLastRow ? "" : String(row + 1);
         rowNumCell.style.border = "1px solid #999";
-        rowNumCell.style.padding = "4px 6px";
+        rowNumCell.style.padding = "6px 12px";
+        rowNumCell.style.lineHeight = "0.75"
+        rowNumCell.style.verticalAlign = "middle";
         rowNumCell.style.backgroundColor = isLastRow ? "#d4d4d4" : "#f5f5f5";
         rowNumCell.style.fontWeight = "bold";
-        rowNumCell.style.textAlign = "center";
         rowNumCell.style.color = "#000000";
+        rowNumCell.style.textAlign = "center";
         tr.appendChild(rowNumCell);
 
         // Add data cells
@@ -121,7 +125,6 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
           const td = document.createElement("td");
           const cellData = hotInstance.getDataAtCell(row, col);
           
-          // Format the cell content
           if (cellData === null || cellData === undefined || cellData === "") {
             td.textContent = "-";
           } else if (typeof cellData === "number") {
@@ -136,7 +139,8 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
           }
 
           td.style.border = "1px solid #999";
-          td.style.padding = "4px 6px";
+          td.style.padding = "6px 12px";
+          td.style.verticalAlign = "middle";
           td.style.textAlign = col < 3 ? "left" : "center";
           td.style.color = "#000000";
           td.style.backgroundColor = "#ffffff";
@@ -198,6 +202,9 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
     captureSnapshot: captureTableSnapshot,
   }));
 
+  const buildCtwtFormula = (rowNumber: number) =>
+    `=IF(AND(ISNUMBER(F${rowNumber}), ISNUMBER(G${rowNumber})), F${rowNumber}*G${rowNumber}, "")`;
+
   // Normalize data and create computed columns
   const normalized = data.map((r, idx) => ({
     col1: "",
@@ -214,7 +221,7 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
     quantity: r.quantity,
     // Handsontable columns: F = avgWeight (6th), G = quantity (7th), H = ctwt (8th)
     // Use formulas that auto update
-    ctwt: `=IF(AND(ISNUMBER(F${idx + 1}), ISNUMBER(G${idx + 1})), F${idx + 1}*G${idx + 1}, "")`,
+    ctwt: buildCtwtFormula(idx + 1),
   }));
 
   const totalsRow = {
@@ -233,97 +240,112 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
 
   const normalizedWithTotal = [...normalized, totalsRow];
 
+  const applyCtwtFormulaForRange = (startRow: number, amount: number) => {
+    const hotInstance = hotTableRef.current?.hotInstance;
+    if (!hotInstance) return;
+    const lastDataRowIndex = hotInstance.countRows() - 2; // skip TOTAL row
+
+    for (let row = startRow; row < startRow + amount; row++) {
+      if (row > lastDataRowIndex) break;
+      const rowNumber = row + 1;
+      hotInstance.setDataAtCell(row, 7, buildCtwtFormula(rowNumber), "loadData");
+    }
+  };
+
   return (
     <div className="w-full">
       <div ref={tableContainerRef} className="w-full overflow-x-auto overflow-hidden">
         <HotTable
-        ref={hotTableRef}
-        data={normalizedWithTotal}
-        rowHeaders={true}
-        colHeaders={[
-          "DIA/COL",
-          "SETTING TYP.",
-          "ST. Shape",
-          "MM SIZE",
-          "SIEVE SIZE",
-          "AVRG WT",
-          "PCS",
-          "CT WT",
-        ]}
-        columns={[
-          { data: "col1" },
-          { data: "col2" },
-          { data: "shape" },
-          { data: "size" },
-          { data: "sieveSize" },
-          {
-            data: "avgWeight",
-            type: "numeric",
-            renderer: (instance, td, row, _col, prop, value) => {
-              const display =
-                typeof value === "number"
-                  ? (value as number).toFixed(3)
-                  : value ?? "-";
-              td.textContent = String(display);
+          ref={hotTableRef}
+          data={normalizedWithTotal}
+          rowHeaders={true}
+          colHeaders={[
+            "DIA/COL",
+            "SETTING TYP.",
+            "ST. Shape",
+            "MM SIZE",
+            "SIEVE SIZE",
+            "AVRG WT",
+            "PCS",
+            "CT WT",
+          ]}
+          columns={[
+            { data: "col1" },
+            { data: "col2" },
+            { data: "shape" },
+            { data: "size" },
+            { data: "sieveSize" },
+            {
+              data: "avgWeight",
+              type: "numeric",
+              renderer: (instance, td, row, _col, prop, value) => {
+                const display =
+                  typeof value === "number"
+                    ? (value as number).toFixed(3)
+                    : value ?? "-";
+                td.textContent = String(display);
+              },
             },
-          },
-          { data: "quantity", type: "numeric" },
-          {
-            data: "ctwt",
-            type: "numeric",
-            renderer: (instance, td, row, _col, prop, value) => {
-              if (row === normalizedWithTotal.length - 1) {
-                // total row
+            { data: "quantity", type: "numeric" },
+            {
+              data: "ctwt",
+              type: "numeric",
+              renderer: (instance, td, row, _col, prop, value) => {
+                if (row === normalizedWithTotal.length - 1) {
+                  // total row
+                  td.textContent =
+                    typeof value === "number" && !isNaN(value)
+                      ? String(value)
+                      : "0";
+                  td.classList.add("font-semibold");
+                  return;
+                }
                 td.textContent =
-                  typeof value === "number" && !isNaN(value)
+                  typeof value === "number" && !isNaN(value) && value !== 0
                     ? String(value)
-                    : "0";
-                td.classList.add("font-semibold");
-                return;
-              }
-              td.textContent =
-                typeof value === "number" && !isNaN(value) && value !== 0
-                  ? String(value)
-                  : "-";
+                    : "-";
+              },
+              readOnly: true,
             },
-            readOnly: true,
-          },
-        ]}
-        formulas={{
-          engine: HyperFormula.buildEmpty({
-            licenseKey: "gpl-v3", // required to enable HyperFormula fully
-          }),
-        }}
-        stretchH="all"
-        height={520}
-        width="100%"
-        colWidths={[100, 120, 110, 120, 130, 110, 100, 110]}
-        autoWrapRow={false}
-        autoWrapCol={false}
-        autoColumnSize={false}
-        manualColumnResize={true}
-        manualRowResize={true}
-        contextMenu={true}
-        dropdownMenu={true}
-        filters={true}
-        preventOverflow="horizontal"
-        licenseKey="non-commercial-and-evaluation"
-        themeName="ht-theme-main"
-        mergeCells={[
-          {
-            row: normalizedWithTotal.length - 1,
-            col: 0,
-            rowspan: 1,
-            colspan: 6,
-          },
-        ]}
-        cells={(row) => {
-          if (row === normalizedWithTotal.length - 1) {
-            return { className: "ht-total-row", readOnly: true };
-          }
-          return {};
-        }}
-      />
+          ]}
+          formulas={{
+            engine: HyperFormula.buildEmpty({
+              licenseKey: "gpl-v3", // required to enable HyperFormula fully
+            }),
+          }}
+          stretchH="all"
+          height={520}
+          width="100%"
+          colWidths={[100, 120, 110, 120, 130, 110, 100, 110]}
+          autoWrapRow={false}
+          autoWrapCol={false}
+          autoColumnSize={false}
+          manualColumnResize={true}
+          manualRowResize={true}
+          contextMenu={true}
+          dropdownMenu={true}
+          filters={true}
+          preventOverflow="horizontal"
+          licenseKey="non-commercial-and-evaluation"
+          themeName="ht-theme-main"
+          mergeCells={[
+            {
+              row: normalizedWithTotal.length - 1,
+              col: 0,
+              rowspan: 1,
+              colspan: 6,
+            },
+          ]}
+          cells={(row) => {
+            if (row === normalizedWithTotal.length - 1) {
+              return { className: "ht-total-row", readOnly: true };
+            }
+            return {};
+          }}
+          afterCreateRow={(index, amount) => {
+            applyCtwtFormulaForRange(index, amount);
+          }}
+        />
       </div>
     </div>
   );
