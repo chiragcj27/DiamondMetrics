@@ -61,10 +61,13 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
       const table = document.createElement("table");
       table.style.borderCollapse = "collapse";
       table.style.fontFamily = "Arial, Helvetica, sans-serif";
-      table.style.fontSize = "20px";
+      // Bump base sizing to produce a larger snapshot
+      // Further enlarge snapshot render for better readability
+      table.style.fontSize = "72px";
       table.style.backgroundColor = "#ffffff";
       table.style.color = "#000000";
       table.style.border = "2px solid #333";
+      table.style.tableLayout = "auto";
 
       // Create header row
       const thead = document.createElement("thead");
@@ -74,10 +77,11 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
       const rowNumHeader = document.createElement("th");
       rowNumHeader.textContent = "";
       rowNumHeader.style.border = "1px solid #666";
-      rowNumHeader.style.padding = "4px 10px";
+      rowNumHeader.style.padding = "12px 18px";
       rowNumHeader.style.verticalAlign = "middle";
       rowNumHeader.style.backgroundColor = "#1f636e";
       rowNumHeader.style.fontWeight = "bold";
+      rowNumHeader.style.fontSize = "72px";
       rowNumHeader.style.minWidth = "50px";
       rowNumHeader.style.color = "#ffffff";
       rowNumHeader.style.textAlign = "center";
@@ -88,10 +92,11 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
         const th = document.createElement("th");
         th.textContent = header;
         th.style.border = "1px solid #666";
-        th.style.padding = "4px 10px";
+        th.style.padding = "12px 18px";
         th.style.verticalAlign = "middle";
         th.style.backgroundColor = "#1f636e";
         th.style.fontWeight = "bold";
+        th.style.fontSize = "72px";
         th.style.whiteSpace = "nowrap";
         th.style.color = "#ffffff";
         th.style.minWidth = "80px";
@@ -111,11 +116,12 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
         const rowNumCell = document.createElement("td");
         rowNumCell.textContent = isLastRow ? "" : String(row + 1);
         rowNumCell.style.border = "1px solid #999";
-        rowNumCell.style.padding = "6px 12px";
+        rowNumCell.style.padding = "14px 20px";
         rowNumCell.style.lineHeight = "0.75"
         rowNumCell.style.verticalAlign = "middle";
         rowNumCell.style.backgroundColor = isLastRow ? "#d4d4d4" : "#f5f5f5";
         rowNumCell.style.fontWeight = "bold";
+        rowNumCell.style.fontSize = "72px";
         rowNumCell.style.color = "#000000";
         rowNumCell.style.textAlign = "center";
         tr.appendChild(rowNumCell);
@@ -139,12 +145,13 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
           }
 
           td.style.border = "1px solid #999";
-          td.style.padding = "6px 12px";
+          td.style.padding = "14px 20px";
           td.style.verticalAlign = "middle";
           td.style.textAlign = col < 3 ? "left" : "center";
           td.style.color = "#000000";
           td.style.backgroundColor = "#ffffff";
           td.style.fontWeight = "bold";
+          td.style.fontSize = "72px";
           
           if (isLastRow) {
             td.style.fontWeight = "bold";
@@ -174,7 +181,8 @@ export const DataTable = forwardRef<DataTableRef, DataTableProps>(({ data }, ref
       // Capture the temporary table
       const canvas = await html2canvas(tempContainer, {
         backgroundColor: "#ffffff",
-        scale: 2,
+        // Higher scale yields a larger and crisper image
+        scale: 4,
         logging: false,
         useCORS: true,
         allowTaint: true,
